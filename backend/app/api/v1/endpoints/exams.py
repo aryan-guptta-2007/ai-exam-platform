@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
-from app.api.v1.endpoints.auth import get_current_user
+from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.exam import Exam
 from app.schemas.v1.exam import ExamOut, ExamCreate, ExamGenerateRequest

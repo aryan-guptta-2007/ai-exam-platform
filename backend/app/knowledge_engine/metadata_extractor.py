@@ -17,8 +17,17 @@ class MetadataExtractor:
         
         system_instruction = (
             "You are an AI document metadata extraction system. Analyze the document snippet "
-            "and output a JSON response containing fields: 'summary' (str), 'key_concepts' (list of str), "
-            "'suggested_title' (str), and 'topics' (list of str). Output ONLY raw JSON."
+            "and output a JSON response containing fields:\n"
+            "- 'summary' (str): A brief overview of the document\n"
+            "- 'suggested_title' (str): A good title for the document\n"
+            "- 'key_concepts' (list of str): List of main concepts covered\n"
+            "- 'subject' (str): The academic subject (e.g., Computer Science, Biology, History, Calculus)\n"
+            "- 'topic' (str): The main topic (e.g., Database Normalization, Cell Division, American Civil War)\n"
+            "- 'chapter' (str or null): Chapter name or number if identifiable, else null\n"
+            "- 'academic_domain' (str): The broader academic domain (e.g., STEM, Humanities, Social Sciences)\n"
+            "- 'language' (str): The primary language of the text (e.g., English, Spanish)\n"
+            "- 'estimated_difficulty' (str): Estimated difficulty level ('Easy', 'Medium', 'Hard')\n"
+            "Output ONLY raw JSON."
         )
         
         prompt = f"Document filename: {filename}\nContent:\n{sample_text}"
@@ -38,7 +47,12 @@ class MetadataExtractor:
             logger.warning(f"Failed to extract metadata using LLM for {filename}: {e}. Falling back to default.")
             return {
                 "summary": "Document content summary unavailable.",
-                "key_concepts": ["Exam study material"],
                 "suggested_title": filename,
-                "topics": ["General Study"]
+                "key_concepts": ["Exam study material"],
+                "subject": "General Education",
+                "topic": "Study Material",
+                "chapter": None,
+                "academic_domain": "General",
+                "language": "English",
+                "estimated_difficulty": "Medium"
             }

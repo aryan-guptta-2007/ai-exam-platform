@@ -105,6 +105,24 @@ services:
       redis:
         condition: service_healthy
 
+  worker_email:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam_platform_worker_email
+    restart: always
+    command: celery -A app.tasks.celery_app.celery worker -Q email_queue --loglevel=info -n worker_email@%h
+    volumes:
+      - ./backend:/app
+      - storage_uploads:/app/storage_uploads
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend

@@ -30,9 +30,9 @@ def publish_ws_progress(task_id: str, status: str, percentage: int, message: str
 async def run_async_ingestion(
     task_id: str,
     user_id: uuid.UUID,
-    raw_text: str,
     filename: str,
-    storage_path: str
+    storage_path: str,
+    sha256: str
 ) -> None:
     # Setup callback wrapper
     async def progress_cb(status: str, percentage: int, message: str) -> None:
@@ -43,9 +43,9 @@ async def run_async_ingestion(
             await document_ingestion_flow.execute(
                 session=session,
                 user_id=user_id,
-                raw_text=raw_text,
                 filename=filename,
                 storage_path=storage_path,
+                sha256=sha256,
                 progress_cb=progress_cb
             )
         except Exception as e:
@@ -56,17 +56,14 @@ async def run_async_ingestion(
 @shared_task(name="app.tasks.embedding_tasks.process_document_ingestion")
 def process_document_ingestion(
     user_id_str: str,
-    raw_text: str,
     filename: str,
     storage_path: str,
+    sha256: str,
     task_id_override: str = None
 ) -> str:
     """
     Celery task running on embedding_queue.
     """
-    # Use Celery request ID or override
-    # celery request context is accessed via task self.request.id, 
-    # but we can pass task_id_override for consistency
     task_id = task_id_override or str(uuid.uuid4())
     user_id = uuid.UUID(user_id_str)
     
@@ -74,6 +71,6 @@ def process_document_ingestion(
     publish_ws_progress(task_id, "starting", 0, "Ingestion task triggered in queue...")
     
     # Bootstrap async loop inside Celery sync thread
-    asyncio.run(run_async_ingestion(task_id, user_id, raw_text, filename, storage_path))
+    asyncio.run(run_async_ingestion(task_id, user_id, filename, storage_path, sha256))
     
     return task_id

@@ -20,6 +20,7 @@ celery.conf.update(
         "app.tasks.embedding_tasks.*": {"queue": "embedding_queue"},
         "app.tasks.teaching_tasks.*": {"queue": "teaching_queue"},
         "app.tasks.exam_tasks.*": {"queue": "exam_queue"},
+        "app.tasks.email_tasks.*": {"queue": "email_queue"},
     },
     # Ensure worker prefetch limits are low for heavy AI workloads
     worker_prefetch_multiplier=1,
@@ -29,5 +30,6 @@ celery.conf.update(
 celery.autodiscover_tasks([
     "app.tasks.embedding_tasks",
     "app.tasks.teaching_tasks",
-    "app.tasks.exam_tasks"
+    "app.tasks.exam_tasks",
+    "app.tasks.email_tasks"
 ])

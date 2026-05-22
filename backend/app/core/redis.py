@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Optional, List
 import redis.asyncio as aioredis
 from app.core.config import settings
 from loguru import logger
@@ -68,5 +68,26 @@ class RedisService:
         if not self.client:
             return False
         return await self.client.exists(f"blacklist:{token_jti}") > 0
+
+    async def get_cached_embedding(self, sha256_hash: str) -> Optional[List[float]]:
+        if not self.client:
+            return None
+        try:
+            cached = await self.client.get(f"embedding:{sha256_hash}")
+            if cached:
+                import json
+                return json.loads(cached)
+        except Exception as e:
+            logger.error(f"Error reading embedding from Redis cache: {e}")
+        return None
+
+    async def set_cached_embedding(self, sha256_hash: str, embedding: List[float], expire_seconds: int = 30 * 24 * 3600) -> None:
+        if not self.client:
+            return
+        try:
+            import json
+            await self.client.setex(f"embedding:{sha256_hash}", expire_seconds, json.dumps(embedding))
+        except Exception as e:
+            logger.error(f"Error writing embedding to Redis cache: {e}")
 
 redis_service = RedisService()

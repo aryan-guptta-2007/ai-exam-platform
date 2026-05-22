@@ -68,6 +68,23 @@ class Settings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str = ""
     AWS_REGION: str = "us-east-1"
 
+    # Google OAuth Configuration
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:3000/auth/callback"
+
+    # SMTP Configuration
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_TLS: bool = True
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = "noreply@examplatform.com"
+
+    # Security Lockout Parameters
+    ACCOUNT_LOCKOUT_LIMIT: int = 5
+    ACCOUNT_LOCKOUT_MINUTES: int = 15
+
     # Feature Flags
     ENABLE_DETAILED_COST_TRACKING: bool = True
     ENABLE_HALLUCINATION_VALIDATION: bool = True

@@ -1,23 +1,51 @@
 # Environment Variables
 .env
+.env.*
+!.env.example
 
-# Python
+# Python Caches & Virtual Envs
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Node Modules
+# Storage Uploads
+backend/storage_uploads/
+
+# Node Modules & NextJS Build
 node_modules/
-
-# Build Files
+.next/
 dist/
 build/
+out/
 
-# Docker
+# Docker Logs & Caches
 *.log
+docker-compose.override.yml
 
-# VS Code
+# IDEs and OS Files
 .vscode/
-
-# OS Files
+.idea/
 .DS_Store
 Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
