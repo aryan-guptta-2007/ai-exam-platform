@@ -1,0 +1,8 @@
+from app.prompts.v1.teaching import EXPLAIN_CONCEPT_PROMPT, ANSWER_STUDENT_QUESTION_PROMPT
+from app.prompts.v1.exam import GENERATE_EXAM_PROMPT
+
+__all__ = [
+    "EXPLAIN_CONCEPT_PROMPT",
+    "ANSWER_STUDENT_QUESTION_PROMPT",
+    "GENERATE_EXAM_PROMPT"
+]

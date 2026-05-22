@@ -1,0 +1,128 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: exam_platform_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: exam_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d exam_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: exam_platform_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam_platform_backend
+    restart: always
+    command: /app/start.sh
+    ports:
+      - "8088:8000"
+    volumes:
+      - ./backend:/app
+      - storage_uploads:/app/storage_uploads
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker_embeddings:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam_platform_worker_embeddings
+    restart: always
+    command: celery -A app.tasks.celery_app.celery worker -Q embedding_queue --loglevel=info -n worker_embeddings@%h
+    volumes:
+      - ./backend:/app
+      - storage_uploads:/app/storage_uploads
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker_teaching:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam_platform_worker_teaching
+    restart: always
+    command: celery -A app.tasks.celery_app.celery worker -Q teaching_queue --loglevel=info -n worker_teaching@%h
+    volumes:
+      - ./backend:/app
+      - storage_uploads:/app/storage_uploads
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker_exams:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam_platform_worker_exams
+    restart: always
+    command: celery -A app.tasks.celery_app.celery worker -Q exam_queue --loglevel=info -n worker_exams@%h
+    volumes:
+      - ./backend:/app
+      - storage_uploads:/app/storage_uploads
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: exam_platform_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  storage_uploads:
