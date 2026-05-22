@@ -19,7 +19,11 @@ def get_llm_provider(provider_name: Optional[str] = None) -> BaseLLMProvider:
     Factory to retrieve an LLM provider based on settings or name.
     """
     # If API keys are set to placeholder values, default to mock provider for local testing
-    if not provider_name and (settings.OPENAI_API_KEY == "your-openai-api-key-here" or not settings.OPENAI_API_KEY):
+    if not provider_name and (
+        not settings.OPENAI_API_KEY 
+        or "your" in settings.OPENAI_API_KEY.lower() 
+        or "placeholder" in settings.OPENAI_API_KEY.lower()
+    ):
         if settings.PRIMARY_LLM_PROVIDER == "openai" or settings.PRIMARY_LLM_PROVIDER == "gemini":
             logger.info("Placeholder or missing API keys detected. Defaulting to 'mock' LLM provider for testing.")
             return MockLLMProvider()
